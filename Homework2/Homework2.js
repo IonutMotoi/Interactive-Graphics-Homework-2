@@ -22,7 +22,7 @@ var vertices = [
     vec4( 0.5, -0.5, -0.5, 1.0 )
 ];
 
-// Bear
+// IDs
 var torsoId = 0;
 var headId  = 1;
 var leftUpperArmId = 2;
@@ -34,44 +34,34 @@ var leftLowerLegId = 7;
 var rightUpperLegId = 8;
 var rightLowerLegId = 9;
 
-<<<<<<< Updated upstream
-=======
-// Tree
 var lowerTreeId = 10;
 var upperTreeId = 11;
->>>>>>> Stashed changes
 
+// Bear dimensions
 var torsoHeight = 5.0;
-var torsoWidth = 2.5;
+var torsoWidth = 4.0;
 var upperArmHeight = 3.0;
 var lowerArmHeight = 2.0;
-var upperArmWidth  = 0.5;
-var lowerArmWidth  = 0.5;
-var upperLegWidth  = 0.5;
-var lowerLegWidth  = 0.5;
+var upperArmWidth  = 1.0;
+var lowerArmWidth  = 1.0;
+var upperLegWidth  = 1.0;
+var lowerLegWidth  = 1.0;
 var lowerLegHeight = 2.0;
 var upperLegHeight = 3.0;
 var headHeight = 2.0;
-var headWidth = 1.5;
+var headWidth = 2.0;
 
-<<<<<<< Updated upstream
-var numNodes = 10;
-=======
-var numNodes = 12;
->>>>>>> Stashed changes
-var numAngles = 11;
-var angle = 0;
+var theta = [0, 0, 70, -20, 110, -50, 115, 10, 75, 30];
 
-var theta = [90, 0, 70, -20, 110, -50, 115, 10, 75, 30];
-
+// Tree dimensions
 var lowerTreeHeight = 20.0;
 var lowerTreeWidth = 3.0;
 var upperTreeHeight = 10.0;
 var upperTreeWidth = 12.0;
 
 var stack = [];
-
 var figure = [];
+var numNodes = 12;
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -113,7 +103,8 @@ function initNodes(Id) {
     case torsoId:
     m = translate(0.0, -10.0, 0.0);
     m = mult(m, rotate(90, vec3(0, 0, 1)) );
-    m = mult(m, rotate(theta[torsoId], vec3(0, 1, 0)))
+    m = mult(m, rotate(90, vec3(0, 1, 0)) );
+    m = mult(m, rotate(theta[torsoId], vec3(0, 0, 1)))
     figure[torsoId] = createNode( m, torso, lowerTreeId, headId );
     break;
 
@@ -126,25 +117,25 @@ function initNodes(Id) {
 
 
     case leftUpperArmId:
-    m = translate(-(torsoWidth+upperArmWidth), 0.9*torsoHeight, 0.0);
+    m = translate(-torsoWidth/2.0, 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[leftUpperArmId], vec3(1, 0, 0)));
     figure[leftUpperArmId] = createNode( m, leftUpperArm, rightUpperArmId, leftLowerArmId );
     break;
 
     case rightUpperArmId:
-    m = translate(torsoWidth+upperArmWidth, 0.9*torsoHeight, 0.0);
+    m = translate(torsoWidth/2.0, 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperArmId], vec3(1, 0, 0)));
     figure[rightUpperArmId] = createNode( m, rightUpperArm, leftUpperLegId, rightLowerArmId );
     break;
 
     case leftUpperLegId:
-    m = translate(-(torsoWidth+upperLegWidth), 0.1*upperLegHeight, 0.0);
+    m = translate(-torsoWidth/2.0, 0.1*upperLegHeight, 0.0);
 	m = mult(m , rotate(theta[leftUpperLegId], vec3(1, 0, 0)));
     figure[leftUpperLegId] = createNode( m, leftUpperLeg, rightUpperLegId, leftLowerLegId );
     break;
 
     case rightUpperLegId:
-    m = translate(torsoWidth+upperLegWidth, 0.1*upperLegHeight, 0.0);
+    m = translate(torsoWidth/2.0, 0.1*upperLegHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperLegId], vec3(1, 0, 0)));
     figure[rightUpperLegId] = createNode( m, rightUpperLeg, null, rightLowerLegId );
     break;
@@ -172,9 +163,6 @@ function initNodes(Id) {
     m = mult(m, rotate(theta[rightLowerLegId], vec3(1, 0, 0)));
     figure[rightLowerLegId] = createNode( m, rightLowerLeg, null, null );
     break;
-<<<<<<< Updated upstream
-
-=======
     
     case lowerTreeId:
     m = translate(10.0, -15.0, 0.0);
@@ -185,7 +173,6 @@ function initNodes(Id) {
     m = translate(0.0, lowerTreeHeight, 0.0);
     figure[upperTreeId] = createNode(m, upperTree, null, null);
     break;
->>>>>>> Stashed changes
     }
 
 }
@@ -329,8 +316,6 @@ window.onload = function init() {
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix) );
 
-    
-
     cube();
 
     vBuffer = gl.createBuffer();
@@ -347,13 +332,8 @@ window.onload = function init() {
         initNodes(torsoId);
     };
     document.getElementById("slider1").onchange = function(event) {
-<<<<<<< Updated upstream
-        theta[head1Id] = event.target.value;
-        initNodes(head1Id);
-=======
         theta[headId] = event.target.value;
         initNodes(headId);
->>>>>>> Stashed changes
     };
     document.getElementById("slider2").onchange = function(event) {
          theta[leftUpperArmId] = event.target.value;
@@ -386,13 +366,6 @@ window.onload = function init() {
     document.getElementById("slider9").onchange = function(event) {
         theta[rightLowerLegId] = event.target.value;
         initNodes(rightLowerLegId);
-<<<<<<< Updated upstream
-    };
-    document.getElementById("slider10").onchange = function(event) {
-         theta[head2Id] = event.target.value;
-         initNodes(head2Id);
-=======
->>>>>>> Stashed changes
     };
 
     for(i=0; i<numNodes; i++) initNodes(i);
