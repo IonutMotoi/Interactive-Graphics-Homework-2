@@ -51,7 +51,7 @@ var upperLegHeight = 3.0;
 var headHeight = 2.0;
 var headWidth = 2.0;
 
-var theta = [0, 0, 70, -20, 110, -50, 115, 10, 75, 30];
+var theta = [0, 0, 110, -50, 70, -20, 115, 10, 75, 30];
 
 // Tree dimensions
 var lowerTreeHeight = 20.0;
@@ -109,33 +109,33 @@ function initNodes(Id) {
     break;
 
     case headId:
-    m = translate(0.0, torsoHeight+0.5*headHeight, 0.0);
+    m = translate(0.0, torsoHeight, headWidth/4.0);
 	m = mult(m, rotate(theta[headId], vec3(1, 0, 0)))
-    m = mult(m, translate(0.0, -0.5*headHeight, 0.0));
+    m = mult(m, translate(0.0, 0.0, 0.0));
     figure[headId] = createNode( m, head, leftUpperArmId, null);
     break;
 
 
     case leftUpperArmId:
-    m = translate(-torsoWidth/2.0, 0.9*torsoHeight, 0.0);
+    m = translate(-0.5*torsoWidth, 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[leftUpperArmId], vec3(1, 0, 0)));
     figure[leftUpperArmId] = createNode( m, leftUpperArm, rightUpperArmId, leftLowerArmId );
     break;
 
     case rightUpperArmId:
-    m = translate(torsoWidth/2.0, 0.9*torsoHeight, 0.0);
+    m = translate(0.5*torsoWidth, 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperArmId], vec3(1, 0, 0)));
     figure[rightUpperArmId] = createNode( m, rightUpperArm, leftUpperLegId, rightLowerArmId );
     break;
 
     case leftUpperLegId:
-    m = translate(-torsoWidth/2.0, 0.1*upperLegHeight, 0.0);
+    m = translate(-0.5*torsoWidth, 0.1*torsoHeight, 0.0);
 	m = mult(m , rotate(theta[leftUpperLegId], vec3(1, 0, 0)));
     figure[leftUpperLegId] = createNode( m, leftUpperLeg, rightUpperLegId, leftLowerLegId );
     break;
 
     case rightUpperLegId:
-    m = translate(torsoWidth/2.0, 0.1*upperLegHeight, 0.0);
+    m = translate(0.5*torsoWidth, 0.1*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperLegId], vec3(1, 0, 0)));
     figure[rightUpperLegId] = createNode( m, rightUpperLeg, null, rightLowerLegId );
     break;
@@ -154,7 +154,7 @@ function initNodes(Id) {
 
     case leftLowerLegId:
     m = translate(0.0, upperLegHeight, 0.0);
-    m = mult(m, rotate(theta[leftLowerLegId],vec3(1, 0, 0)));
+    m = mult(m, rotate(theta[leftLowerLegId], vec3(1, 0, 0)));
     figure[leftLowerLegId] = createNode( m, leftLowerLeg, null, null );
     break;
 
