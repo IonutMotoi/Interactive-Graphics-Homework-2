@@ -98,10 +98,11 @@ var key = 1;
 var then = 0;
 
 // Speeds
-var speedBear = 4;
-var speedRotation = 40;
+const speedBear = 4;
+const speedRotation = 40;
 var speedWalk = 35;
-var speedInclination = 120;
+const speedInclination = 120;
+const speedStretch = 30;
 var speedScratching = 1;
 var speedScratchingLegs = 40;
 
@@ -423,7 +424,7 @@ window.onload = function init() {
 
     projectionMatrix = ortho(-20.0, 20.0, -20.0, 20.0, -20.0, 20.0);
     
-    modelViewMatrix = rotate(0, vec3(0,1,0));
+    modelViewMatrix = rotate(-30, vec3(0,1,0));
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -454,47 +455,6 @@ window.onload = function init() {
 
     configureTexture(imgBody, imgHead, imgTrunk, imgLeaves);
 
-    document.getElementById("slider0").onchange = function(event) {
-        theta[torsoId] = event.target.value;
-        initNodes(torsoId);
-    };
-    document.getElementById("slider1").onchange = function(event) {
-        theta[headId] = event.target.value;
-        initNodes(headId);
-    };
-    document.getElementById("slider2").onchange = function(event) {
-         theta[leftUpperArmId] = event.target.value;
-         initNodes(leftUpperArmId);
-    };
-    document.getElementById("slider3").onchange = function(event) {
-         theta[leftLowerArmId] =  event.target.value;
-         initNodes(leftLowerArmId);
-    };
-    document.getElementById("slider4").onchange = function(event) {
-        theta[rightUpperArmId] = event.target.value;
-        initNodes(rightUpperArmId);
-    };
-    document.getElementById("slider5").onchange = function(event) {
-         theta[rightLowerArmId] =  event.target.value;
-         initNodes(rightLowerArmId);
-    };
-    document.getElementById("slider6").onchange = function(event) {
-        theta[leftUpperLegId] = event.target.value;
-        initNodes(leftUpperLegId);
-    };
-    document.getElementById("slider7").onchange = function(event) {
-         theta[leftLowerLegId] = event.target.value;
-         initNodes(leftLowerLegId);
-    };
-    document.getElementById("slider8").onchange = function(event) {
-         theta[rightUpperLegId] =  event.target.value;
-         initNodes(rightUpperLegId);
-    };
-    document.getElementById("slider9").onchange = function(event) {
-        theta[rightLowerLegId] = event.target.value;
-        initNodes(rightLowerLegId);
-    };
-
     for(i=0; i<numNodes; i++) initNodes(i);
 
     requestAnimationFrame(render);
@@ -522,21 +482,21 @@ function stretchLegs(deltaTime){
     // Iterate over all limbs
     done = true;
     for (i=leftUpperArmId; i<=rightUpperLegId; i=i+2) {
-        if (theta[i] < 89.0) {
-            theta[i] += speedWalk * deltaTime;
+        if (theta[i] < 89) {
+            theta[i] += speedStretch * deltaTime;
             done = false;
         }
-        else if (theta[i] > 91.0) {
-            theta[i] -= speedWalk * deltaTime;
+        else if (theta[i] > 91) {
+            theta[i] -= speedStretch * deltaTime;
             done = false;
         }
 
-        if (theta[i+1] < -1.0) {
-            theta[i+1] += speedWalk * deltaTime;
+        if (theta[i+1] < -1) {
+            theta[i+1] += speedStretch * deltaTime;
             done = false;
         }
-        else if (theta[i+1] > 1.0) {
-            theta[i+1] -= speedWalk * deltaTime;
+        else if (theta[i+1] > 1) {
+            theta[i+1] -= speedStretch * deltaTime;
             done = false;
         }
     }
@@ -556,7 +516,6 @@ function scratchingAnimation(deltaTime){
         speedScratching = -speedScratching;
         speedScratchingLegs = -speedScratchingLegs;
     }
-    console.log(posBearY);
 
     for(i=0; i<numNodes; i++) initNodes(i);
 }
