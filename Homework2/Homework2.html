@@ -5,12 +5,16 @@
 #version 300 es
 
 in vec4 aPosition;
+in vec2 aTexCoord;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
+out vec2 vTexCoord;
+
 void main()
 {
+    vTexCoord = aTexCoord;
     gl_Position = projectionMatrix * modelViewMatrix * aPosition;
 }
 </script>
@@ -20,11 +24,15 @@ void main()
 
 precision mediump float;
 
+in vec2 vTexCoord;
+
 out vec4 fColor;
+
+uniform sampler2D uTex;
 
 void main()
 {
-    fColor = vec4(1.0, 0.0, 0.0, 1.0);
+    fColor = texture(uTex, vTexCoord);
 
 }
 </script>
@@ -103,10 +111,13 @@ right lower leg angle -180 <input id="slider9" type="range"
  180
 </div><br/>
 
-
 <body>
-<canvas id="gl-canvas" width="512"" height="512">
+<canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
+<img id = "imgBody" src = "textures/body.jpg" hidden></img>
+<img id = "imgHead" src = "textures/head.jpg" hidden></img>
+<img id = "imgTrunk" src = "textures/trunk.jpg" hidden></img>
+<img id = "imgLeaves" src = "textures/leaves.jpg" hidden></img>
 </body>
 </html>
