@@ -48,26 +48,26 @@ var upperTreeId = 12;
 // Bear dimensions
 var torsoHeight = 5.0;
 var torsoWidth = 4.0;
-var upperArmHeight = 3.0;
+var upperArmHeight = 2.0;
 var lowerArmHeight = 2.0;
 var upperArmWidth  = 1.0;
 var lowerArmWidth  = 1.0;
 var upperLegWidth  = 1.0;
 var lowerLegWidth  = 1.0;
 var lowerLegHeight = 2.0;
-var upperLegHeight = 3.0;
+var upperLegHeight = 2.0;
 var headHeight = 2.0;
 var headWidth = 2.0;
 var tailHeight = 0.8;
 var tailWidth = 0.8;
 
-var theta = [0, 0, 110, -50, 70, -20, 115, 10, 75, 30];
+var theta = [0, 0, 90, 0, 90, 0, 90, 0, 90, 0];
 
 // Tree dimensions
-var lowerTreeHeight = 20.0;
+var lowerTreeHeight = 16.0;
 var lowerTreeWidth = 3.0;
-var upperTreeHeight = 10.0;
-var upperTreeWidth = 12.0;
+var upperTreeHeight = 15.0;
+var upperTreeWidth = 15.0;
 
 var stack = [];
 var figure = [];
@@ -90,6 +90,7 @@ var texBody, texHead;
 
 // ----- Variables for animation -----
 var posBearX = -15.0;
+var posBearY = -11.0;
 var posTreeX = 10.0;
 
 var key = 1;
@@ -98,7 +99,14 @@ var then = 0;
 
 // Speeds
 var speedBear = 4;
-var speedRotation = 20;
+var speedRotation = 40;
+var speedWalk = 35;
+var speedInclination = 120;
+var speedScratching = 1;
+var speedScratchingLegs = 40;
+
+var inclination = 0;
+var done = false;
 // -----------------------------------
 
 
@@ -166,16 +174,18 @@ function initNodes(Id) {
     switch(Id) {
 
     case torsoId:
-    m = translate(posBearX, -10.0, 0.0);
+    m = translate(posBearX, posBearY, 0.0);
     m = mult(m, rotate(90, vec3(0, 0, 1)) );
     m = mult(m, rotate(90, vec3(0, 1, 0)) );
-    m = mult(m, rotate(theta[torsoId], vec3(0, 0, 1)))
+    m = mult(m, rotate(theta[torsoId], vec3(0, 0, 1)));
+    m = mult(m, rotate(inclination, vec3(1, 0, 0)));
     figure[torsoId] = createNode(m, torso, lowerTreeId, headId );
     break;
 
     case headId:
     m = translate(0.0, torsoHeight, headWidth/4.0);
-	m = mult(m, rotate(90, vec3(0, 1, 0)))
+    m = mult(m, rotate(90, vec3(0, 1, 0)));
+    m = mult(m, rotate(theta[headId], vec3(0, 0, 1)));
     figure[headId] = createNode(m, head, leftUpperArmId, null);
     break;
 
@@ -228,7 +238,7 @@ function initNodes(Id) {
     break;
 
     case tailID:
-    m = translate(0.0, 0.0, 0.0);
+    m = translate(0.0, 0.0, 0.25*torsoWidth);
     figure[tailID] = createNode(m, tail, null, null);
     break;
 
@@ -413,8 +423,7 @@ window.onload = function init() {
 
     projectionMatrix = ortho(-20.0, 20.0, -20.0, 20.0, -20.0, 20.0);
     
-    //modelViewMatrix = mat4();
-    modelViewMatrix = rotate(30, vec3(0,1,0));
+    modelViewMatrix = rotate(0, vec3(0,1,0));
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -446,7 +455,7 @@ window.onload = function init() {
     configureTexture(imgBody, imgHead, imgTrunk, imgLeaves);
 
     document.getElementById("slider0").onchange = function(event) {
-        theta[torsoId ] = event.target.value;
+        theta[torsoId] = event.target.value;
         initNodes(torsoId);
     };
     document.getElementById("slider1").onchange = function(event) {
@@ -491,24 +500,135 @@ window.onload = function init() {
     requestAnimationFrame(render);
 }
 
+function walkAnimation(deltaTime, minAngle, maxAngle) {
+    theta[leftUpperArmId] += speedWalk * deltaTime;
+    theta[rightUpperArmId] -= speedWalk * deltaTime;
+    theta[leftUpperLegId] -= speedWalk * deltaTime;
+    theta[rightUpperLegId] += speedWalk * deltaTime;
+
+    theta[leftLowerArmId] += speedWalk * deltaTime;
+    theta[rightLowerArmId] -= speedWalk * deltaTime;
+    theta[leftLowerLegId] -= speedWalk * deltaTime;
+    theta[rightLowerLegId] += speedWalk * deltaTime;
+
+    if(theta[leftUpperArmId] > maxAngle  && speedWalk > 0 ||
+        theta[leftUpperArmId] < minAngle && speedWalk < 0)
+        speedWalk = -speedWalk;
+
+    for(i=0; i<numNodes; i++) initNodes(i);
+}
+
+function stretchLegs(deltaTime){
+    // Iterate over all limbs
+    done = true;
+    for (i=leftUpperArmId; i<=rightUpperLegId; i=i+2) {
+        if (theta[i] < 89.0) {
+            theta[i] += speedWalk * deltaTime;
+            done = false;
+        }
+        else if (theta[i] > 91.0) {
+            theta[i] -= speedWalk * deltaTime;
+            done = false;
+        }
+
+        if (theta[i+1] < -1.0) {
+            theta[i+1] += speedWalk * deltaTime;
+            done = false;
+        }
+        else if (theta[i+1] > 1.0) {
+            theta[i+1] -= speedWalk * deltaTime;
+            done = false;
+        }
+    }
+    for(i=0; i<numNodes; i++) initNodes(i);
+}
+
+function scratchingAnimation(deltaTime){
+    posBearY -= speedScratching * deltaTime;
+
+    theta[leftUpperLegId] += speedScratchingLegs * deltaTime;
+    theta[rightUpperLegId] += speedScratchingLegs * deltaTime;
+
+    theta[leftLowerLegId] -= speedScratchingLegs * deltaTime;
+    theta[rightLowerLegId] -= speedScratchingLegs * deltaTime;
+
+    if (posBearY < -13.0 || posBearY > -12.0) {
+        speedScratching = -speedScratching;
+        speedScratchingLegs = -speedScratchingLegs;
+    }
+    console.log(posBearY);
+
+    for(i=0; i<numNodes; i++) initNodes(i);
+}
+
 function animate(deltaTime) {
     switch (key){
         case 0:
             break;
+
+        // Walk towards the tree
         case 1:
-            if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoHeight + headHeight) )
+            if (posBearX < posTreeX - (0.6*lowerTreeWidth + torsoHeight + headHeight) )
                 posBearX += speedBear * deltaTime;
             else key = 2;
-            initNodes(torsoId);
+            walkAnimation(deltaTime, 75, 105);
             break;
+
+        // Start rotation
         case 2:
-            if (theta[torsoId] < 180)
+            if (theta[torsoId] < 45) {
                 theta[torsoId] += speedRotation * deltaTime;
-            if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
+            }
+            else key = 3;
+            walkAnimation(deltaTime, 85, 95);
+            break;
+
+        // Complete rotation while getting closer
+        case 3:
+            if (theta[torsoId] < 180) {
+                theta[torsoId] += speedRotation * deltaTime;
+                if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
+                    posBearX += 0.3*speedBear * deltaTime;
+            }
+            else key = 4;
+            walkAnimation(deltaTime, 85, 95);
+            break;
+
+        // Get closer to the tree
+        case 4:
+            if (posBearX < posTreeX - 0.5*(lowerTreeWidth + torsoWidth) )
                 posBearX += speedBear * deltaTime;
-            if (theta[torsoId] >= 180 && posBearX >= posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
-                key = 3;
-            initNodes(torsoId);
+            else key = 5;
+            walkAnimation(deltaTime, 75, 105);
+            break;
+
+        // Prepare
+        case 5:
+            stretchLegs(deltaTime);
+            if (done) 
+                key = 6;
+            break;
+
+        // Get on two legs
+        case 6:
+            if (inclination > -90) {
+                inclination -= speedInclination * deltaTime;
+                theta[leftUpperArmId] += speedInclination * deltaTime;
+                theta[rightUpperArmId] += speedInclination * deltaTime;
+                theta[leftUpperLegId] += speedInclination * deltaTime;
+                theta[rightUpperLegId] += speedInclination * deltaTime;
+                if (theta[headId] > -30)
+                    theta[headId] -= speedInclination * deltaTime;
+                if (posBearY > -12)
+                    posBearY -= 1.0*deltaTime;
+            }
+            else key = 7;
+            for(i=0; i<numNodes; i++) initNodes(i);
+            break;
+
+        // Start dancing like a stripper
+        case 7:
+            scratchingAnimation(deltaTime);
             break;
     }
 }
