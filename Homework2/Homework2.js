@@ -82,14 +82,26 @@ var modelViewLoc;
 var pointsArray = [];
 var texCoordsArray = [];
 
+
 // Texture variables
 var texTrunk, texLeaves;
 var texBody, texHead;
 
+
+// ----- Variables for animation -----
 var posBearX = -15.0;
 var posTreeX = 10.0;
 
 var key = 1;
+
+var then = 0;
+
+// Speeds
+var speedBear = 4;
+var speedRotation = 20;
+// -----------------------------------
+
+
 
 //  Texture configuration
 function configureTexture(imgBody, imgHead, imgTrunk, imgLeaves) {
@@ -476,11 +488,38 @@ window.onload = function init() {
 
     for(i=0; i<numNodes; i++) initNodes(i);
 
-    render();
+    requestAnimationFrame(render);
 }
 
+function animate(deltaTime) {
+    switch (key){
+        case 0:
+            break;
+        case 1:
+            if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoHeight + headHeight) )
+                posBearX += speedBear * deltaTime;
+            else key = 2;
+            initNodes(torsoId);
+            break;
+        case 2:
+            if (theta[torsoId] < 180)
+                theta[torsoId] += speedRotation * deltaTime;
+            if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
+                posBearX += speedBear * deltaTime;
+            if (theta[torsoId] >= 180 && posBearX >= posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
+                key = 3;
+            initNodes(torsoId);
+            break;
+    }
+}
 
-var render = function() {
+var render = function(now) {
+    now *= 0.001;
+    const deltaTime = now - then;
+    then = now;
+
+    animate(deltaTime);
+    
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     traverse(torsoId);
     requestAnimationFrame(render);
