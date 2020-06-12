@@ -93,7 +93,7 @@ var posBearX = -15.0;
 var posBearY = -11.0;
 var posTreeX = 10.0;
 
-var key = 1;
+var key = 0;
 
 var then = 0;
 
@@ -103,13 +103,12 @@ const speedRotation = 40;
 var speedWalk = 35;
 const speedInclination = 120;
 const speedStretch = 30;
-var speedScratching = 1;
-var speedScratchingLegs = 40;
+var speedScratching = -2;
+var speedScratchingLegs = 50;
 
 var inclination = 0;
 var done = false;
 // -----------------------------------
-
 
 
 //  Texture configuration
@@ -424,7 +423,7 @@ window.onload = function init() {
 
     projectionMatrix = ortho(-20.0, 20.0, -20.0, 20.0, -20.0, 20.0);
     
-    modelViewMatrix = rotate(-30, vec3(0,1,0));
+    modelViewMatrix = rotate(-45, vec3(0,1,0));
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -458,6 +457,25 @@ window.onload = function init() {
     for(i=0; i<numNodes; i++) initNodes(i);
 
     requestAnimationFrame(render);
+
+    // Start animation
+    document.getElementById("startAnim").onclick = function() {
+        if(key == 0) key = 1;
+    };
+
+    // Modify camera angle
+    document.getElementById("camera1").onclick = function() {
+        modelViewMatrix = rotate(-45, vec3(0,1,0));
+        for(i=0; i<numNodes; i++) initNodes(i);
+    };
+    document.getElementById("camera2").onclick = function() {
+        modelViewMatrix = rotate(0, vec3(0,1,0));
+        for(i=0; i<numNodes; i++) initNodes(i);
+    };
+    document.getElementById("camera3").onclick = function() {
+        modelViewMatrix = rotate(45, vec3(0,1,0));
+        for(i=0; i<numNodes; i++) initNodes(i);
+    };
 }
 
 function walkAnimation(deltaTime, minAngle, maxAngle) {
@@ -504,15 +522,17 @@ function stretchLegs(deltaTime){
 }
 
 function scratchingAnimation(deltaTime){
-    posBearY -= speedScratching * deltaTime;
+    posBearY += speedScratching * deltaTime;
 
-    theta[leftUpperLegId] += speedScratchingLegs * deltaTime;
-    theta[rightUpperLegId] += speedScratchingLegs * deltaTime;
+    theta[leftUpperLegId] -= speedScratchingLegs * deltaTime;
+    theta[rightUpperLegId] -= speedScratchingLegs * deltaTime;
 
-    theta[leftLowerLegId] -= speedScratchingLegs * deltaTime;
-    theta[rightLowerLegId] -= speedScratchingLegs * deltaTime;
+    theta[leftLowerLegId] += 2*speedScratchingLegs * deltaTime;
+    theta[rightLowerLegId] += 2*speedScratchingLegs * deltaTime;
 
-    if (posBearY < -13.0 || posBearY > -12.0) {
+    if ((posBearY < -13.0 && speedScratching < 0) ||
+        (posBearY > -12.0 && speedScratching > 0)) 
+    {
         speedScratching = -speedScratching;
         speedScratchingLegs = -speedScratchingLegs;
     }
@@ -578,14 +598,14 @@ function animate(deltaTime) {
                 theta[rightUpperLegId] += speedInclination * deltaTime;
                 if (theta[headId] > -30)
                     theta[headId] -= speedInclination * deltaTime;
-                if (posBearY > -12)
-                    posBearY -= 1.0*deltaTime;
+                // if (posBearY > -12)
+                //     posBearY -= 1.0*deltaTime;
             }
             else key = 7;
             for(i=0; i<numNodes; i++) initNodes(i);
             break;
 
-        // Start dancing like a stripper
+        // Start scratching
         case 7:
             scratchingAnimation(deltaTime);
             break;
