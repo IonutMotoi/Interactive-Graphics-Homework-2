@@ -426,6 +426,8 @@ window.onload = function init() {
     projectionMatrix = ortho(-20.0, 20.0, -20.0, 20.0, -20.0, 20.0);
     
     modelViewMatrix = rotate(camAngle, vec3(0,1,0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(-15, vec3(1,0,0)));
+    modelViewMatrix = mult(modelViewMatrix, rotate(-15, vec3(0,0,1)));
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -462,7 +464,7 @@ window.onload = function init() {
 
     // Start animation
     document.getElementById("startAnim").onclick = function() {
-        if(key == 0) key = 1;
+        if(key == 0) key++;
     };
 }
 
@@ -537,7 +539,7 @@ function animate(deltaTime) {
         case 1:
             if (posBearX < posTreeX - (0.6*lowerTreeWidth + torsoHeight + headHeight) )
                 posBearX += speedBear * deltaTime;
-            else key = 2;
+            else key++;
             walkAnimation(deltaTime, 75, 105);
             break;
 
@@ -546,7 +548,7 @@ function animate(deltaTime) {
             if (theta[torsoId] < 45) {
                 theta[torsoId] += speedRotation * deltaTime;
             }
-            else key = 3;
+            else key++;
             walkAnimation(deltaTime, 85, 95);
             break;
 
@@ -557,7 +559,7 @@ function animate(deltaTime) {
                 if (posBearX < posTreeX - (0.5*lowerTreeWidth + torsoWidth) )
                     posBearX += 0.3*speedBear * deltaTime;
             }
-            else key = 4;
+            else key++;
             walkAnimation(deltaTime, 85, 95);
             break;
 
@@ -565,7 +567,7 @@ function animate(deltaTime) {
         case 4:
             if (posBearX < posTreeX - 0.5*(lowerTreeWidth + torsoWidth) )
                 posBearX += speedBear * deltaTime;
-            else key = 5;
+            else key++;
             walkAnimation(deltaTime, 75, 105);
             break;
 
@@ -573,7 +575,7 @@ function animate(deltaTime) {
         case 5:
             stretchLegs(deltaTime);
             if (done) 
-                key = 6;
+                key++;
             break;
 
         // Get on two legs
@@ -589,7 +591,7 @@ function animate(deltaTime) {
                 // if (posBearY > -12)
                 //     posBearY -= 1.0*deltaTime;
             }
-            else key = 7;
+            else key++;
             for(i=0; i<numNodes; i++) initNodes(i);
             break;
 
