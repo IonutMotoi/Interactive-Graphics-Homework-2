@@ -110,6 +110,8 @@ var inclination = 0;
 var done = false;
 // -----------------------------------
 
+// Camera angle
+var camAngle = -45;
 
 //  Texture configuration
 function configureTexture(imgBody, imgHead, imgTrunk, imgLeaves) {
@@ -423,7 +425,7 @@ window.onload = function init() {
 
     projectionMatrix = ortho(-20.0, 20.0, -20.0, 20.0, -20.0, 20.0);
     
-    modelViewMatrix = rotate(-45, vec3(0,1,0));
+    modelViewMatrix = rotate(camAngle, vec3(0,1,0));
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -461,20 +463,6 @@ window.onload = function init() {
     // Start animation
     document.getElementById("startAnim").onclick = function() {
         if(key == 0) key = 1;
-    };
-
-    // Modify camera angle
-    document.getElementById("camera1").onclick = function() {
-        modelViewMatrix = rotate(-45, vec3(0,1,0));
-        for(i=0; i<numNodes; i++) initNodes(i);
-    };
-    document.getElementById("camera2").onclick = function() {
-        modelViewMatrix = rotate(0, vec3(0,1,0));
-        for(i=0; i<numNodes; i++) initNodes(i);
-    };
-    document.getElementById("camera3").onclick = function() {
-        modelViewMatrix = rotate(45, vec3(0,1,0));
-        for(i=0; i<numNodes; i++) initNodes(i);
     };
 }
 
